@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		63C2EB6422E193D800E9208F /* SafeIrbisTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */; };
+		63C2EB6A22E1945000E9208F /* FirstTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C2EB6922E1945000E9208F /* FirstTest.swift */; };
 		BF0BC6C68AFFC9873E74A568 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0ABCAEBA87836006B2AFDC /* main.swift */; };
 /* End PBXBuildFile section */
 
@@ -23,11 +25,22 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		63C2EB6122E193D800E9208F /* SafeIrbisTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeIrbisTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeIrbisTest.swift; sourceTree = "<group>"; };
+		63C2EB6522E193D800E9208F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		63C2EB6922E1945000E9208F /* FirstTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstTest.swift; path = SafeIrbisTest/FirstTest.swift; sourceTree = SOURCE_ROOT; };
 		BF07DD83E28600733BD0BC60 /* SwiftIrbis */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftIrbis; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0ABCAEBA87836006B2AFDC /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		63C2EB5E22E193D800E9208F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BF00F20D7D42B6444E7450A5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -38,10 +51,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		63C2EB6222E193D800E9208F /* SafeIrbisTest */ = {
+			isa = PBXGroup;
+			children = (
+				63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */,
+				63C2EB6522E193D800E9208F /* Info.plist */,
+			);
+			path = SafeIrbisTest;
+			sourceTree = "<group>";
+		};
 		BF0C660E3C5A6D8CBF22C386 /* SwiftIrbis */ = {
 			isa = PBXGroup;
 			children = (
 				BF0ABCAEBA87836006B2AFDC /* main.swift */,
+				63C2EB6922E1945000E9208F /* FirstTest.swift */,
 			);
 			path = SwiftIrbis;
 			sourceTree = "<group>";
@@ -50,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				BF07DD83E28600733BD0BC60 /* SwiftIrbis */,
+				63C2EB6122E193D800E9208F /* SafeIrbisTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -57,6 +81,7 @@
 		BF0E24E76D4C3229A3A86328 = {
 			isa = PBXGroup;
 			children = (
+				63C2EB6222E193D800E9208F /* SafeIrbisTest */,
 				BF0D6AB0A86D1B365BAACC50 /* Products */,
 				BF0C660E3C5A6D8CBF22C386 /* SwiftIrbis */,
 			);
@@ -65,6 +90,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		63C2EB6022E193D800E9208F /* SafeIrbisTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 63C2EB6822E193D800E9208F /* Build configuration list for PBXNativeTarget "SafeIrbisTest" */;
+			buildPhases = (
+				63C2EB5D22E193D800E9208F /* Sources */,
+				63C2EB5E22E193D800E9208F /* Frameworks */,
+				63C2EB5F22E193D800E9208F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SafeIrbisTest;
+			productName = SafeIrbisTest;
+			productReference = 63C2EB6122E193D800E9208F /* SafeIrbisTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		BF02548F1048DB0CC5CF9253 /* SwiftIrbis */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BF0D50E7F62DC1FCEE2C3D38 /* Build configuration list for PBXNativeTarget "SwiftIrbis" */;
@@ -88,13 +130,21 @@
 		BF0FD0E9D5CBF1A1E4E4C8BA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1020;
 				ORGANIZATIONNAME = "Alexey Mironov";
+				TargetAttributes = {
+					63C2EB6022E193D800E9208F = {
+						CreatedOnToolsVersion = 10.2.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = BF0D47447690C18A9AFBE90E /* Build configuration list for PBXProject "SwiftIrbis" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = BF0E24E76D4C3229A3A86328;
@@ -103,11 +153,31 @@
 			projectRoot = "";
 			targets = (
 				BF02548F1048DB0CC5CF9253 /* SwiftIrbis */,
+				63C2EB6022E193D800E9208F /* SafeIrbisTest */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		63C2EB5F22E193D800E9208F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		63C2EB5D22E193D800E9208F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63C2EB6A22E1945000E9208F /* FirstTest.swift in Sources */,
+				63C2EB6422E193D800E9208F /* SafeIrbisTest.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BF084FCDA87B56523585598D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -119,6 +189,32 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		63C2EB6622E193D800E9208F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SafeIrbisTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = AM.SafeIrbisTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		63C2EB6722E193D800E9208F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SafeIrbisTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = AM.SafeIrbisTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		BF027C24D5593AF358E44B2F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -176,8 +272,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
 		};
@@ -253,6 +348,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		63C2EB6822E193D800E9208F /* Build configuration list for PBXNativeTarget "SafeIrbisTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				63C2EB6622E193D800E9208F /* Debug */,
+				63C2EB6722E193D800E9208F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		BF0D47447690C18A9AFBE90E /* Build configuration list for PBXProject "SwiftIrbis" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -269,6 +373,7 @@
 				BF027C24D5593AF358E44B2F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
