@@ -2,5 +2,5 @@ os: osx
 osx_image: xcode10.2
 language: swift
 xcode_project: Source/SwiftIrbis.xcodeproj
-xcode_scheme: SwiftIrbis
+xcode_scheme: SafeTests
 xcode_destination: platform=macOS
