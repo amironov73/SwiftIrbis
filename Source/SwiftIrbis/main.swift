@@ -75,7 +75,9 @@ let PUTLOG           = "PUTLOG" // Save logs to file
 
 let IRBIS_DELIMITER = "\u{1F}\u{1E}" // IRBIS line delimiter
 let SHORT_DELIMITER = "\u{1E}"       // Short version of line delimiter
+let SHORT_DELIMITER_CHAR: Character = "\u{1E}"
 let ALT_DELIMITER   = "\u{1F}"       // Alternative version of line delimiter
+let ALT_DELIMITER_CHAR: Character = "\u{1F}"
 let UNIX_DELIMITER  = "\n"           // Standard UNIX line delimiter
 
 //=========================================================
@@ -306,26 +308,35 @@ class TreeFile {
 class ClientQuery {
     var connection: Connection
     var command: String
+    private var buffer: Data
 
-    init(connection: Connection, command: String) {
+    init(_ connection: Connection, command: String) {
         self.connection = connection
         self.command = command
+        self.buffer = Data()
+        self.buffer.reserveCapacity(1024)
     }
 
-    func add(number: Int) -> ClientQuery {
+    func add(_ number: Int) -> ClientQuery {
+        return self.addAnsi(String(number))
+    }
+
+    func addAnsi(_ text: String) -> ClientQuery {
+        self.buffer.append(toAnsi(text))
         return self
     }
 
-    func addAnsi(text: String) -> ClientQuery {
-        return self
-    }
-
-    func addUtf(text: String) -> ClientQuery {
+    func addUtf(_ text: String) -> ClientQuery {
+        self.buffer.append(toUtf(text))
         return self
     }
 
     func newLine() {
-        // return self
+        self.buffer.append(UInt8(10))
+    }
+
+    func stop() {
+        // Nothing to do here
     }
 
 } // class ClientQuery
@@ -423,9 +434,9 @@ class Connection {
             return false
         }
 
-        let query = ClientQuery(connection: self, command: "F")
-        query.addAnsi(text: database).newLine()
-        query.add(number: mfn).newLine()
+        let query = ClientQuery(self, command: "F")
+        query.addAnsi(database).newLine()
+        query.add(mfn).newLine()
         let response = self.execute(query: query)
         return response.ok && response.checkReturnCode()
     } // func actualizeRecord
@@ -437,15 +448,15 @@ class Connection {
 
         self.clientId = Int.random(in: 100_000...999_999)
         self.queryId = 1
-        let query = ClientQuery(connection: self, command: "A")
-        query.addAnsi(text: self.username).newLine()
-        query.addAnsi(text: self.password)
+        let query = ClientQuery(self, command: "A")
+        query.addAnsi(self.username).newLine()
+        query.addAnsi(self.password).stop()
         let response = self.execute(query: query)
         if !response.ok {
             return false
         }
 
-        response.getReturnCode()
+        _ = response.getReturnCode()
         if response.returnCode == -3337 {
             // TODO
         }
@@ -468,9 +479,9 @@ class Connection {
             return true
         }
 
-        let query = ClientQuery(connection: self, command: "B")
-        query.addAnsi(text: self.username)
-        self.execute(query: query)
+        let query = ClientQuery(self, command: "B")
+        query.addAnsi(self.username).stop()
+        _ = self.execute(query: query)
 
         self.connected = false
         return true
@@ -488,8 +499,8 @@ class Connection {
             return 0
         }
 
-        let query = ClientQuery(connection: self, command: "O")
-        query.addAnsi(text: database)
+        let query = ClientQuery(self, command: "O")
+        query.addAnsi(database).stop()
         let response = self.execute(query: query)
         if !response.ok || !response.checkReturnCode() {
             return 0
@@ -503,7 +514,7 @@ class Connection {
             return false
         }
 
-        let query = ClientQuery(connection: self, command: "N")
+        let query = ClientQuery(self, command: "N")
         return self.execute(query: query).ok
     } // func noOp
 
@@ -525,9 +536,9 @@ print("Interval=\(client.interval)")
 let maxMfn = client.getMaxMfn(database: "IBIS")
 print("Max MFN=\(maxMfn)")
 
-client.noOp()
+_ = client.noOp()
 print("NOP")
 
-client.disconnect()
+_ = client.disconnect()
 
 print("THAT'S ALL FOLKS!")

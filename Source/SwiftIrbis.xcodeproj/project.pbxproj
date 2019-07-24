@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		6323863D22E5A4220011D2F9 /* SearchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6323863C22E5A4220011D2F9 /* SearchTest.swift */; };
+		63AE36B022E7CEEA00DD4D6D /* Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE36AF22E7CEEA00DD4D6D /* Structures.swift */; };
+		63AE36B222E7D4B900DD4D6D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE36B122E7D4B900DD4D6D /* Utils.swift */; };
 		63C2EB6422E193D800E9208F /* SafeIrbisTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */; };
 		63C2EB6A22E1945000E9208F /* FirstTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C2EB6922E1945000E9208F /* FirstTest.swift */; };
 		BF0BA6BBBE0D19448C12CFE2 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0B1344870DCEF888AB42F8 /* Search.swift */; };
@@ -28,6 +30,8 @@
 
 /* Begin PBXFileReference section */
 		6323863C22E5A4220011D2F9 /* SearchTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTest.swift; sourceTree = "<group>"; };
+		63AE36AF22E7CEEA00DD4D6D /* Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Structures.swift; sourceTree = "<group>"; };
+		63AE36B122E7D4B900DD4D6D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		63C2EB6122E193D800E9208F /* SafeIrbisTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeIrbisTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeIrbisTest.swift; sourceTree = "<group>"; };
 		63C2EB6522E193D800E9208F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -71,6 +75,8 @@
 				BF0ABCAEBA87836006B2AFDC /* main.swift */,
 				63C2EB6922E1945000E9208F /* FirstTest.swift */,
 				BF0B1344870DCEF888AB42F8 /* Search.swift */,
+				63AE36AF22E7CEEA00DD4D6D /* Structures.swift */,
+				63AE36B122E7D4B900DD4D6D /* Utils.swift */,
 			);
 			path = SwiftIrbis;
 			sourceTree = "<group>";
@@ -190,7 +196,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BF0BC6C68AFFC9873E74A568 /* main.swift in Sources */,
+				63AE36B022E7CEEA00DD4D6D /* Structures.swift in Sources */,
 				BF0BA6BBBE0D19448C12CFE2 /* Search.swift in Sources */,
+				63AE36B222E7D4B900DD4D6D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
