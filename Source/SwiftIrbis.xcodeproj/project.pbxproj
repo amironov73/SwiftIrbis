@@ -12,6 +12,12 @@
 		63AE36B222E7D4B900DD4D6D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE36B122E7D4B900DD4D6D /* Utils.swift */; };
 		63C2EB6422E193D800E9208F /* SafeIrbisTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */; };
 		63C2EB6A22E1945000E9208F /* FirstTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C2EB6922E1945000E9208F /* FirstTest.swift */; };
+		63F91E6122E9A9E8006D2258 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F91E6022E9A9E8006D2258 /* Connection.swift */; };
+		63F91E6322E9AA03006D2258 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F91E6222E9AA03006D2258 /* Constants.swift */; };
+		63F91E6522E9AA4A006D2258 /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F91E6422E9AA4A006D2258 /* Record.swift */; };
+		63F91E6722E9AAB9006D2258 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F91E6622E9AAB9006D2258 /* Menus.swift */; };
+		63F91E6922E9AAFE006D2258 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F91E6822E9AAFE006D2258 /* Tree.swift */; };
+		63F91E6B22E9AB2F006D2258 /* Ini.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F91E6A22E9AB2F006D2258 /* Ini.swift */; };
 		BF0BA6BBBE0D19448C12CFE2 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0B1344870DCEF888AB42F8 /* Search.swift */; };
 		BF0BC6C68AFFC9873E74A568 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0ABCAEBA87836006B2AFDC /* main.swift */; };
 /* End PBXBuildFile section */
@@ -36,6 +42,12 @@
 		63C2EB6322E193D800E9208F /* SafeIrbisTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeIrbisTest.swift; sourceTree = "<group>"; };
 		63C2EB6522E193D800E9208F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63C2EB6922E1945000E9208F /* FirstTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirstTest.swift; path = SafeIrbisTest/FirstTest.swift; sourceTree = SOURCE_ROOT; };
+		63F91E6022E9A9E8006D2258 /* Connection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Connection.swift; sourceTree = "<group>"; };
+		63F91E6222E9AA03006D2258 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		63F91E6422E9AA4A006D2258 /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
+		63F91E6622E9AAB9006D2258 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
+		63F91E6822E9AAFE006D2258 /* Tree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
+		63F91E6A22E9AB2F006D2258 /* Ini.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ini.swift; sourceTree = "<group>"; };
 		BF07DD83E28600733BD0BC60 /* SwiftIrbis */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftIrbis; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0ABCAEBA87836006B2AFDC /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		BF0B1344870DCEF888AB42F8 /* Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
@@ -77,6 +89,12 @@
 				BF0B1344870DCEF888AB42F8 /* Search.swift */,
 				63AE36AF22E7CEEA00DD4D6D /* Structures.swift */,
 				63AE36B122E7D4B900DD4D6D /* Utils.swift */,
+				63F91E6022E9A9E8006D2258 /* Connection.swift */,
+				63F91E6222E9AA03006D2258 /* Constants.swift */,
+				63F91E6422E9AA4A006D2258 /* Record.swift */,
+				63F91E6622E9AAB9006D2258 /* Menus.swift */,
+				63F91E6822E9AAFE006D2258 /* Tree.swift */,
+				63F91E6A22E9AB2F006D2258 /* Ini.swift */,
 			);
 			path = SwiftIrbis;
 			sourceTree = "<group>";
@@ -197,8 +215,14 @@
 			files = (
 				BF0BC6C68AFFC9873E74A568 /* main.swift in Sources */,
 				63AE36B022E7CEEA00DD4D6D /* Structures.swift in Sources */,
+				63F91E6B22E9AB2F006D2258 /* Ini.swift in Sources */,
+				63F91E6122E9A9E8006D2258 /* Connection.swift in Sources */,
+				63F91E6922E9AAFE006D2258 /* Tree.swift in Sources */,
 				BF0BA6BBBE0D19448C12CFE2 /* Search.swift in Sources */,
+				63F91E6522E9AA4A006D2258 /* Record.swift in Sources */,
 				63AE36B222E7D4B900DD4D6D /* Utils.swift in Sources */,
+				63F91E6722E9AAB9006D2258 /* Menus.swift in Sources */,
+				63F91E6322E9AA03006D2258 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
