@@ -347,6 +347,38 @@ class Connection {
         return result
     } // func getServerVersion
 
+    func listFiles(_ specifications: String...) -> [String] {
+        var result = [String]()
+        if !self.connected || specifications.isEmpty {
+            return result
+        }
+
+        let query = ClientQuery(self, command: "!")
+        for item in specifications {
+            if !item.isEmpty {
+                query.addAnsi(item).newLine()
+            }
+        } // for
+        let response = self.execute(query)
+        if !response.ok {
+            return result
+        }
+        let lines = response.readRemainingAnsiLines()
+        for line in lines {
+            let files = irbisToLines(line)
+            for file in files {
+                let lowercased = file.lowercased()
+                if !file.isEmpty && !result.contains(lowercased) {
+                    result.append(lowercased)
+                }
+            } // for
+        } // for
+        return result
+    } // func listFiles
+
+    /**
+     * Get the server process list.
+     */
     func listProcesses() -> [ProcessInfo] {
         var result = [ProcessInfo]()
         if self.connected {
@@ -359,7 +391,10 @@ class Connection {
         }
         return result
     } // func listProcesses
-    
+
+    /**
+     * Empty operation. Confirms the client as alive.
+     */
     func noOp() -> Bool {
         if !self.connected {
             return false
@@ -368,6 +403,50 @@ class Connection {
         let query = ClientQuery(self, command: "N")
         return self.execute(query).ok
     } // func noOp
+
+    /**
+     * Parse the connection string.
+     */
+    func parseConnectionString(_ connectionString: String) {
+        let items = connectionString.components(separatedBy: ";")
+        for item in items {
+            if item.isEmpty {
+                continue
+            }
+
+            let parts = split2(item, separator: "=")
+            if parts.count != 2 {
+                continue
+            }
+
+            let name = parts[0].lowercased()
+            let value = trim(parts[1])
+
+            switch(name) {
+            case "host", "server", "address":
+                self.host = value;
+
+            case "port":
+                self.port = UInt16(parseInt32(value))
+
+            case "user", "username", "name", "login":
+                self.username = value
+
+            case "pwd", "password":
+                self.password = value
+
+            case "db", "database", "catalog":
+                self.database = value
+
+            case "arm", "workstation":
+                self.workstation = value
+
+            default:
+                // TODO throw
+                print("Unknown key \(name)")
+            }
+        } // for
+    } // func parseConnectionString
 
     func readRecord(_ mfn: Int32, version: Int32 = 0) -> MarcRecord? {
         if !connected {
@@ -395,6 +474,52 @@ class Connection {
 
         return result
     } // func readRecord
+
+    /**
+     * Read the text file from the server.
+     */
+    func readTextFile(fileName: String) -> String? {
+        if !self.connected || fileName.isEmpty {
+            return nil
+        }
+
+        let query = ClientQuery(self, command: "L")
+        query.addAnsi(fileName).newLine()
+        let response = self.execute(query)
+        if !response.ok {
+            return nil
+        }
+
+        let line = response.readAnsi()
+        if let text = line {
+            let result = irbisToUnix(text)
+            return result
+        }
+        return nil
+    } // func readTextFile
+
+    /**
+     * Read the text file from the server as the array of lines.
+     */
+    func readTextLines(fileName: String) -> [String] {
+        if !self.connected || fileName.isEmpty {
+            return []
+        }
+
+        let query = ClientQuery(self, command: "L")
+        query.addAnsi(fileName).newLine()
+        let response = self.execute(query)
+        if !response.ok {
+            return []
+        }
+
+        let line = response.readAnsi()
+        if let text = line {
+            let result = irbisToLines(text)
+            return result
+        }
+        return []
+    } // func readTextLines
 
     /**
      * Recreate dictionary for the database.
@@ -433,6 +558,14 @@ class Connection {
         let query = ClientQuery(self, command: "+8")
         return self.execute(query).ok
     }
+
+    func requireTextFile(fileName: String) -> String {
+        let result = self.readTextFile(fileName: fileName)!
+        if result.isEmpty {
+            // TODO throw
+        }
+        return result
+    } // func requireTextFile
 
     /**
      * Determine the number of records matching the search expression.

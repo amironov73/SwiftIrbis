@@ -37,6 +37,9 @@ print("Record: \(record)", terminator: "")
 let searchCount = client.searchCount("K=бетон$")
 print("Search count=\(searchCount)")
 
+let files = client.listFiles("3.IBIS.brief.*", "3.IBIS.a*.pft")
+print("Files: \(files)")
+
 _ = client.noOp()
 print("NOP")
 

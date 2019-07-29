@@ -10,7 +10,8 @@ class MenuEntry {
     init(code: String, comment: String) {
         self.code = code
         self.comment = comment
-    }
+    } // init
+    
 } // class MenuEntry
 
 class MenuFile {
@@ -20,12 +21,12 @@ class MenuFile {
         let entry = MenuEntry(code: code, comment: comment)
         self.entries.append(entry)
         return self
-    }
+    } // func append
     
     func clear() -> MenuFile {
         self.entries = []
         return self
-    }
+    } // func clear
     
 } // class MenuFile
 
