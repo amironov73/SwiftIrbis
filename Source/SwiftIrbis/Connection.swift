@@ -193,7 +193,16 @@ class ServerResponse {
     } // func readRemainingAnsiText
     
     func readRemainingUtfLines() -> [String] {
-        return []
+        var result = [String]()
+        while (true) {
+            let text = self.readUtf()
+            if let line = text {
+                result.append(line)
+            } else {
+                break
+            }
+        }
+        return result
     } // func readRemainingUtfLines
     
     func readRemainingUtfText() -> String {
@@ -359,5 +368,174 @@ class Connection {
         let query = ClientQuery(self, command: "N")
         return self.execute(query).ok
     } // func noOp
+
+    func readRecord(_ mfn: Int32, version: Int32 = 0) -> MarcRecord? {
+        if !connected {
+            return nil
+        }
+
+        let query = ClientQuery(self, command: "C")
+        query.addAnsi(self.database).newLine()
+        query.add(mfn).newLine()
+        query.add(version).newLine()
+        let response = self.execute(query)
+        if !response.ok || !response.checkReturnCode() {
+            return nil
+        }
+        // TODO implement good codes -201, -600, -602, -603
+
+        let result = MarcRecord()
+        let lines = response.readRemainingUtfLines()
+        result.decode(lines)
+        result.database = self.database
+
+        if version != 0 {
+            // TODO unlock records
+        }
+
+        return result
+    } // func readRecord
+
+    /**
+     * Recreate dictionary for the database.
+     */
+    func reloadDictionary(database: String) -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        let query = ClientQuery(self, command: "Y")
+        query.addAnsi(database).newLine()
+        return self.execute(query).ok
+    } // func reloadDictionary
+
+    /**
+     * Recreate master file for the database.
+     */
+    func reloadMasterFile(database: String) -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        let query = ClientQuery(self, command: "X")
+        query.addAnsi(database).newLine()
+        return self.execute(query).ok
+    } // func reloadMasterFile
+
+    /**
+     * Restart the server without losing the connected clients.
+     */
+    func restartServer() -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        let query = ClientQuery(self, command: "+8")
+        return self.execute(query).ok
+    }
+
+    /**
+     * Determine the number of records matching the search expression.
+     */
+    func searchCount(_ expression: String) -> Int32 {
+        if !self.connected || expression.isEmpty {
+            return 0
+        }
+
+        let query = ClientQuery(self, command: "K")
+        query.addAnsi(self.database).newLine()
+        query.addUtf(expression).newLine()
+        query.add(0).newLine()
+        query.add(0).newLine()
+        let response = self.execute(query)
+        if !response.ok || !response.checkReturnCode() {
+            return 0
+        }
+        let result = response.readInteger()
+        return result
+    } // func searchCount
+
+    func searchSingleRecord(_expression: String) -> MarcRecord? {
+        // TODO implement
+        return nil
+    } // func searchSingleRecord
+
+    func throwOnError() {
+        if self.lastError < 0 {
+            // TODO throw
+        }
+    } // func throwOnError
+
+    func toConnectionString() -> String {
+        return "host=\(host);port=\(port);username=\(username);password=\(password);database=\(database);arm=\(workstation)"
+    } // func toConnectionString
+
+    /**
+     * Empty the database.
+     */
+    func truncateDatabase(database: String = "") -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        let db = pickOne(database, self.database)
+        let query = ClientQuery(self, command: "S")
+        query.addAnsi(db).newLine()
+        return self.execute(query).ok
+    } // func truncateDatabase
+
+    /**
+     * Unlock the database.
+     */
+    func unlockDatabase(database: String = "") -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        let db = pickOne(database, self.database)
+        let query = ClientQuery(self, command: "U")
+        query.addAnsi(db).newLine()
+        return self.execute(query).ok
+    } // func unlockDatabase
+
+    /**
+     * Unlock some records in the database.
+     */
+    func unlockRecords(database: String = "", _ mfnList: [Int32]) -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        if mfnList.isEmpty {
+            return true
+        }
+
+        let db = pickOne(database, self.database)
+        let query = ClientQuery(self, command: "Q")
+        query.addAnsi(db).newLine()
+        for mfn in mfnList {
+            query.add(mfn).newLine()
+        }
+        return self.execute(query).ok
+    } // func unlockRecords
+
+    /**
+     * Update server INI file fro current user.
+     */
+    func updateIniFile(lines: [String]) -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        if lines.isEmpty {
+            return true
+        }
+
+        let query = ClientQuery(self, command: "8")
+        for line in lines {
+            query.addAnsi(line).newLine()
+        }
+        return self.execute(query).ok
+    } // func updateIniFile
     
 } // class Connection

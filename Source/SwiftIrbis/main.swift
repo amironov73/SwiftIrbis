@@ -11,6 +11,7 @@ client.password = "secret"
 
 if !client.connect() {
     print("Can't connect!")
+    client.throwOnError()
     exit(1)
 }
 
@@ -29,6 +30,12 @@ print("Server stat: \(serverStat)")
 
 let maxMfn = client.getMaxMfn(database: "IBIS")
 print("Max MFN=\(maxMfn)")
+
+let record = client.readRecord(1)!
+print("Record: \(record)", terminator: "")
+
+let searchCount = client.searchCount("K=бетон$")
+print("Search count=\(searchCount)")
 
 _ = client.noOp()
 print("NOP")
