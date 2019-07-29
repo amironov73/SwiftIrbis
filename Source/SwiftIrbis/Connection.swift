@@ -69,29 +69,14 @@ class ClientSocket {
 
     func talkToServer(query: ClientQuery) -> ServerResponse {
         let connection = query.connection
-        var inputStream: InputStream!
-        var outputStream: OutputStream!
-        Stream.getStreamsToHost(withName: connection.host, port: Int(connection.port), inputStream: &inputStream, outputStream: &outputStream)
-        inputStream.open()
-        outputStream.open()
-
-        var outputPacket = query.encode()
-        outputPacket.withUnsafeBytes { (u8Ptr) -> Int in
-            outputStream.write(u8Ptr, maxLength: outputPacket.count)
-        }
-
-        let bufferSize = 32 * 1024
-        var inputBuffer = Array<UInt8>(repeating: 0, count: bufferSize)
-        let bytesRead = inputStream.read(&inputBuffer, maxLength: bufferSize)
-
-        inputStream!.close()
-        outputStream!.close()
-
-        var buffer = Data()
-        buffer.append(contentsOf: inputBuffer)
-        let result = ServerResponse(buffer)
-        result.connection = query.connection
-
+        let client = TcpClient(host: connection.host, port: connection.port)
+        client.connect()
+        let outputData = query.encode()
+        let outputPacket = Array(outputData)
+        client.send(packet: outputPacket)
+        let inputPacket = client.receive()
+        client.close()
+        let result = ServerResponse(inputPacket)
         return result
     } // func talkToServer
 
@@ -191,7 +176,16 @@ class ServerResponse {
     } // func readInteger
     
     func readRemainingAnsiLines() -> [String] {
-        return []
+        var result = [String]()
+        while (true) {
+            let text = self.readAnsi()
+            if let line = text {
+                result.append(line)
+            } else {
+                break
+            }
+        }
+        return result
     } // func readRemainingAnsiLines
     
     func readRemainingAnsiText() -> String {
@@ -221,7 +215,7 @@ class ServerResponse {
 
 class Connection {
     var host: String = "127.0.0.1"
-    var port: Int16 = 6666
+    var port: UInt16 = 6666
     var username: String = ""
     var password: String = ""
     var database: String = "IBIS"
@@ -246,7 +240,7 @@ class Connection {
         let query = ClientQuery(self, command: "F")
         query.addAnsi(database).newLine()
         query.add(mfn).newLine()
-        let response = self.execute(query: query)
+        let response = self.execute(query)
         return response.ok && response.checkReturnCode()
     } // func actualizeRecord
     
@@ -260,7 +254,7 @@ class Connection {
         let query = ClientQuery(self, command: "A")
         query.addAnsi(self.username).newLine()
         query.addAnsi(self.password).stop()
-        let response = self.execute(query: query)
+        let response = self.execute(query)
         if !response.ok {
             return false
         }
@@ -290,13 +284,13 @@ class Connection {
         
         let query = ClientQuery(self, command: "B")
         query.addAnsi(self.username).stop()
-        _ = self.execute(query: query)
+        _ = self.execute(query)
         
         self.connected = false
         return true
     } // func disconnect
     
-    func execute(query: ClientQuery) -> ServerResponse {
+    func execute(_ query: ClientQuery) -> ServerResponse {
         self.lastError = 0
         self.queryId += 1
         
@@ -310,13 +304,52 @@ class Connection {
         
         let query = ClientQuery(self, command: "O")
         query.addAnsi(database).stop()
-        let response = self.execute(query: query)
+        let response = self.execute(query)
         if !response.ok || !response.checkReturnCode() {
             return 0
         }
         
         return response.returnCode
     } // func getMaxMfn
+
+    func getServerStat() -> ServerStat {
+        let result = ServerStat()
+        if self.connected {
+            let query = ClientQuery(self, command: "+1")
+            let response = self.execute(query)
+            if response.ok && response.checkReturnCode() {
+                let lines = response.readRemainingAnsiLines()
+                result.parse(lines)
+            }
+        }
+        return result
+    } // func getServerStat
+
+    func getServerVersion() -> VersionInfo {
+        let result = VersionInfo()
+        if self.connected {
+            let query = ClientQuery(self, command: "1")
+            let response = self.execute(query)
+            if response.ok && response.checkReturnCode() {
+                let lines = response.readRemainingAnsiLines()
+                result.parse(lines)
+            }
+        }
+        return result
+    } // func getServerVersion
+
+    func listProcesses() -> [ProcessInfo] {
+        var result = [ProcessInfo]()
+        if self.connected {
+            let query = ClientQuery(self, command: "+3")
+            let response = self.execute(query)
+            if response.ok && response.checkReturnCode() {
+                let lines = response.readRemainingAnsiLines()
+                result = ProcessInfo.parse(lines)
+            }
+        }
+        return result
+    } // func listProcesses
     
     func noOp() -> Bool {
         if !self.connected {
@@ -324,7 +357,7 @@ class Connection {
         }
         
         let query = ClientQuery(self, command: "N")
-        return self.execute(query: query).ok
+        return self.execute(query).ok
     } // func noOp
     
 } // class Connection

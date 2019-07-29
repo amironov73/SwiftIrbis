@@ -8,7 +8,7 @@ ManagedClient ported to Swift 5
 
 Now supports:
 
-* Xcode 10.2 (AppCode 2019.1)
+* Xcode 10.3 (AppCode 2019.2)
 * Swift 5.0
 * OS X 10.14
 
@@ -28,10 +28,14 @@ if !client.connect() {
 print("Server version=\(client.serverVersion)")
 print("Interval=\(client.interval)")
 
+let version = client.getServerVersion()
+print("Licence: \(version.organization)")
+print("Max clients=\(version.maxClients)")
+
 let maxMfn = client.getMaxMfn(database: "IBIS")
 print("Max MFN=\(maxMfn)")
 
-client.noOp()
+_ = client.noOp()
 print("NOP")
 
 client.disconnect()
