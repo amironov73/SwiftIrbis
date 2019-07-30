@@ -11,7 +11,7 @@ class MenuEntry {
         self.code = code
         self.comment = comment
     } // init
-    
+
 } // class MenuEntry
 
 class MenuFile {

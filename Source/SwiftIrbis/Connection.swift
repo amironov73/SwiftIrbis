@@ -36,8 +36,32 @@ class ClientQuery {
         return self
     } // func addAnsi
 
-    func addFormat(_ text: String) {
-        // TODO implement
+    /**
+     * Add format specification.
+     */
+    func addFormat(_ text: String) -> Bool {
+        let stripped = trim(text)
+
+        if stripped.isEmpty {
+            self.newLine()
+            return false
+        }
+
+        let prepared = prepareFormat(format: text)
+        if prepared.isEmpty {
+            self.newLine()
+            return false
+        }
+
+        if prepared.first! == "@" {
+            _ = self.addAnsi(prepared)
+        } else if prepared.first! == "!" {
+            _ = self.addUtf(prepared)
+        } else {
+            _ = self.addUtf("!").addUtf(prepared)
+        }
+        self.newLine()
+        return true
     } // func addFormat
     
     func addUtf(_ text: String) -> ClientQuery {
@@ -568,6 +592,108 @@ class Connection {
     } // func requireTextFile
 
     /**
+     * Simple search for records (no more than 32k records).
+     */
+    func search(expression: String) -> [Int32] {
+        var result = [Int32]()
+        if !self.connected || expression.isEmpty {
+            return result
+        }
+
+        let query = ClientQuery(self, command: "K")
+        query.addAnsi(self.database).newLine()
+        query.addUtf(expression).newLine()
+        query.add(0).newLine()
+        query.add(1).newLine()
+        let response = self.execute(query)
+        if !response.ok || !response.checkReturnCode() {
+            return result
+        }
+
+        _ = response.readInteger() // count of found records
+        let lines = response.readRemainingUtfLines()
+        result = FoundLine.parseMfn(lines)
+        return result
+    } // func search
+
+    /**
+     * Extended search for records (no more than 32k records).
+     */
+    func search(parameters: SearchParameters) -> [FoundLine] {
+        var result = [FoundLine]()
+        if !connected {
+            return result
+        }
+
+        let db = pickOne(parameters.database, self.database)
+        let query = ClientQuery(self, command: "K")
+        query.addAnsi(db).newLine()
+        query.addUtf(parameters.expression).newLine()
+        query.add(parameters.numberOfRecords).newLine()
+        query.add(parameters.firstRecord).newLine()
+        _ = query.addFormat(parameters.format)
+        query.add(parameters.minMfn).newLine()
+        query.add(parameters.maxMfn).newLine()
+        query.addAnsi(parameters.sequential).newLine()
+        let response = self.execute(query)
+        if !response.ok || !response.checkReturnCode() {
+            return result
+        }
+
+        _ = response.readInteger() // count of found records
+        let lines = response.readRemainingUtfLines()
+        result = FoundLine.parseFull(lines)
+        return result
+    } // func search
+
+    /**
+     * Search all the records (even if more than 32k records).
+     */
+    func searchAll(expression: String) -> [Int32] {
+        var result = [Int32]()
+        if !self.connected || expression.isEmpty {
+            return result
+        }
+
+        var firstRecord: Int32 = 1
+        var totalCount: Int32 = 0
+        while(true) {
+            let query = ClientQuery(self, command: "K")
+            query.addAnsi(self.database).newLine()
+            query.addUtf(expression).newLine()
+            query.add(0).newLine()
+            query.add(firstRecord).newLine()
+            let response = self.execute(query)
+            if !response.ok || !response.checkReturnCode() {
+                break
+            }
+
+            if (firstRecord == 1) {
+                totalCount = response.readInteger()
+                if totalCount == 0 {
+                    break
+                }
+            } else {
+                _ = response.readInteger()
+            }
+
+            let lines = response.readRemainingUtfLines()
+            let found = FoundLine.parseMfn(lines)
+            if found.isEmpty {
+                break
+            }
+
+            result.append(contentsOf: found)
+            firstRecord += Int32(found.count)
+            if firstRecord >= totalCount {
+                break
+            }
+        } // while
+
+        return result
+    } // func searchAll
+
+    /**
      * Determine the number of records matching the search expression.
      */
     func searchCount(_ expression: String) -> Int32 {
@@ -587,6 +713,43 @@ class Connection {
         let result = response.readInteger()
         return result
     } // func searchCount
+
+    /**
+     * Search for records and read found ones.
+     * No more than 32k records.
+     */
+    func searchRead(_ expression: String, limit: Int32 = 0) -> [MarcRecord] {
+        var result = [MarcRecord]()
+        if !self.connected || expression.isEmpty {
+            return result
+        }
+
+        let parameters = SearchParameters()
+        parameters.expression = expression
+        parameters.format = ALL_FORMAT
+        parameters.numberOfRecords = limit
+        let found = self.search(parameters: parameters)
+        if found.isEmpty {
+            return result
+        }
+
+        for item in found {
+            if item.text.isEmpty {
+                continue
+            }
+            var lines = item.text.components(separatedBy: ALT_DELIMITER)
+            lines = Array(lines[1...])
+            if lines.isEmpty {
+                continue
+            }
+            let record = MarcRecord()
+            record.decode(lines)
+            record.database = self.database
+            result.append(record)
+        } // for
+
+        return result
+    } // func searchRead
 
     func searchSingleRecord(_expression: String) -> MarcRecord? {
         // TODO implement

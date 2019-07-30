@@ -79,7 +79,7 @@ func sameString(_ a: String, _ b: String) -> Bool {
 
 func split2(_ text: String, separator: Character) -> [String] {
     var result = [String]()
-    let parts = text.split(separator: separator, maxSplits: 2)
+    let parts = text.split(separator: separator, maxSplits: 1)
     result.append(String(parts[0]))
     if parts.count != 1 {
         result.append(String(parts[1]))

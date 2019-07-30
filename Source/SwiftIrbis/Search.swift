@@ -1,6 +1,114 @@
 import Foundation
 
-class Search {
+//=========================================================
+// Search parameters
+
+class SearchParameters: CustomStringConvertible, CustomDebugStringConvertible {
+
+    var database: String = "" // Database name.
+    var firstRecord: Int32 = 1 // First record number.
+    var format: String = "" // Format specification.
+    var maxMfn: Int32 = 0 // Maximal MFN.
+    var minMfn: Int32 = 0 // Minimal MFN.
+    var numberOfRecords: Int32 = 0 // Number of records required. 0 = all.
+    var expression: String = "" // Search expression.
+    var sequential: String = "" // Sequential search expression.
+    var filter: String = "" // Additional filter
+
+    func toString() -> String {
+        return self.expression
+    } // func toString
+
+    var description: String {
+        return self.toString()
+    } // var description
+
+    var debugDescription: String {
+        return self.toString()
+    } // var debugDescription
+
+} // class SearchParameters
+
+//=========================================================
+// Found record information
+
+/**
+ * Information about found record.
+ * Used in search method.
+ */
+class FoundLine: CustomStringConvertible, CustomDebugStringConvertible {
+
+    var mfn: Int32 = 0 // Record MFN.
+    var text: String = "" // Description (optional).
+
+    func parse(_ text: String) {
+        let parts = split2(text, separator: "#")
+        self.mfn = parseInt32(parts[0])
+        self.text = safeGet(parts, 1)
+    } // func parse
+
+    static func parseDescriptions(_ lines: [String]) -> [String] {
+        var result = [String]()
+        result.reserveCapacity(lines.count)
+        for line in lines {
+            if !line.isEmpty {
+                let parts = split2(line, separator: "#")
+                let description = safeGet(parts, 1)
+                if !description.isEmpty {
+                    result.append(description)
+                }
+            } // if
+        } // for
+        return result
+    } // func parseDescriptions
+
+    static func parseFull(_ lines: [String]) -> [FoundLine] {
+        var result = [FoundLine]()
+        result.reserveCapacity(lines.count)
+        for line in lines {
+            if !line.isEmpty {
+                let parts = split2(line, separator: "#")
+                let item = FoundLine()
+                item.mfn = parseInt32(parts[0])
+                item.text = safeGet(parts, 1)
+                result.append(item)
+            } // if
+        } // for
+        return result
+    } // func parseFull
+
+    static func parseMfn(_ lines: [String]) -> [Int32] {
+        var result = [Int32]()
+        result.reserveCapacity(lines.count)
+        for line in lines {
+            if !line.isEmpty {
+                let parts = split2(line, separator: "#")
+                let mfn = parseInt32(parts[0])
+                if mfn != 0 {
+                    result.append(mfn)
+                }
+            } // if
+        } // for
+        return result
+    } // func parseMfn
+
+    var description: String {
+        return "\(mfn)#\(text))"
+    } // var description
+
+    var debugDescription: String {
+        return "FoundLine(mfn: \(mfn), text: \(text))"
+    } // var debugDescription
+
+} // class FoundLine
+
+//=========================================================
+// Search query builder
+
+/**
+ * Search query builder.
+ */
+class Search: CustomStringConvertible, CustomDebugStringConvertible {
 
     private var _buffer: String
 
@@ -151,6 +259,14 @@ class Search {
     func toString() -> String {
         return _buffer
     } // func toString
+
+    var description: String {
+        return self.toString()
+    } // var description
+
+    var debugDescription: String {
+        return self.toString()
+    } // var debugDescription
 
 } // class Search
 

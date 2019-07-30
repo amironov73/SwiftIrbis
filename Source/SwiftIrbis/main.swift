@@ -40,6 +40,12 @@ print("Search count=\(searchCount)")
 let files = client.listFiles("3.IBIS.brief.*", "3.IBIS.a*.pft")
 print("Files: \(files)")
 
+let foundMfn = client.search(expression: "K=бетон$")
+print("Found MFN: \(foundMfn)")
+
+let foundRecords = client.searchRead("K=бетон$", limit: 3)
+print("Found records: \(foundRecords)")
+
 _ = client.noOp()
 print("NOP")
 
