@@ -18,6 +18,10 @@ if !client.connect() {
 print("Server version=\(client.serverVersion)")
 print("Interval=\(client.interval)")
 
+let ini = client.ini
+let dbnnamecat = ini.getValue(sectionName: "Main", keyName: "DBNNAMECAT", defaultValue: "???")
+print("DBNNAMECAT=\(dbnnamecat)")
+
 let version = client.getServerVersion()
 print("Licence: \(version.organization)")
 print("Max clients=\(version.maxClients)")
@@ -31,11 +35,11 @@ print("Server stat: \(serverStat)")
 let maxMfn = client.getMaxMfn(database: "IBIS")
 print("Max MFN=\(maxMfn)")
 
+let formatted = client.formatRecord("@brief", mfn: 1)
+print("Formatted: \(formatted)")
+
 let record = client.readRecord(1)!
 print("Record: \(record)", terminator: "")
-
-let searchCount = client.searchCount("K=бетон$")
-print("Search count=\(searchCount)")
 
 let files = client.listFiles("3.IBIS.brief.*", "3.IBIS.a*.pft")
 print("Files: \(files)")
@@ -45,6 +49,9 @@ print("Found MFN: \(foundMfn)")
 
 let foundRecords = client.searchRead("K=бетон$", limit: 3)
 print("Found records: \(foundRecords)")
+
+let searchCount = client.searchCount("K=бетон$")
+print("Search count=\(searchCount)")
 
 _ = client.noOp()
 print("NOP")

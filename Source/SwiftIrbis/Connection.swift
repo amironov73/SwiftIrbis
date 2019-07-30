@@ -146,8 +146,11 @@ class ServerResponse {
         return self.offset >= self.buffer.count
     } // func eof
 
-    func checkReturnCode() -> Bool {
-        if getReturnCode() < 0 {
+    func checkReturnCode(allowed: Int32...) -> Bool {
+        if self.getReturnCode() < 0 {
+            if allowed.contains(self.returnCode) {
+                return true
+            }
             return false // TODO check for allowed codes
         }
         return true
@@ -230,7 +233,11 @@ class ServerResponse {
     } // func readRemainingUtfLines
     
     func readRemainingUtfText() -> String {
-        return ""
+        if self.eof() {
+            return ""
+        }
+        let chunk = self.buffer[self.offset...]
+        return fromUtf(chunk)
     } // func readRemainingUtfText
     
     func readUtf() -> String? {
@@ -260,11 +267,18 @@ class Connection {
     var serverVersion: String = ""
     var interval: Int32 = 0
     var socket: ClientSocket = ClientSocket()
-    
+    var ini: IniFile = IniFile()
+
+    /**
+     * Actualize all non-actualized records in the database.
+     */
     func actualizeDatabase(database: String) -> Bool {
         return actualizeRecord(database: database, mfn: 0)
     } // func actualizeDatabase
-    
+
+    /**
+     * Actualize the record with given MFN.
+     */
     func actualizeRecord(database: String, mfn: Int32) -> Bool {
         if !self.connected {
             return false
@@ -276,12 +290,16 @@ class Connection {
         let response = self.execute(query)
         return response.ok && response.checkReturnCode()
     } // func actualizeRecord
-    
+
+    /**
+     * Establish the server connection.
+     */
     func connect() -> Bool {
         if self.connected {
             return true
         }
-        
+
+        self.lastError = 0
         self.clientId = Int32.random(in: 100_000...999_999)
         self.queryId = 1
         let query = ClientQuery(self, command: "A")
@@ -294,10 +312,11 @@ class Connection {
         
         _ = response.getReturnCode()
         if response.returnCode == -3337 {
-            // TODO
+            return self.connect()
         }
         
         if response.returnCode < 0 {
+            self.lastError = response.returnCode
             return false
         }
         
@@ -305,7 +324,8 @@ class Connection {
         self.serverVersion = response.serverVersion
         self.interval = response.readInteger()
         
-        // TODO
+        let lines = response.readRemainingAnsiLines()
+        self.ini.parse(lines)
         
         return true
     } // func connect
@@ -329,6 +349,32 @@ class Connection {
         
         return self.socket.talkToServer(query: query)
     } // func execute
+
+    /**
+     * Format the record by MFN.
+     */
+    func formatRecord(_ format: String, mfn: Int32) -> String {
+        if !self.connected || mfn < 1 || format.isEmpty {
+            return ""
+        }
+
+        let query = ClientQuery(self, command: "G")
+        query.addAnsi(self.database).newLine()
+        if (!query.addFormat(format)) {
+            return ""
+        }
+
+        query.add(1).newLine()
+        query.add(mfn).newLine()
+        let response = self.execute(query)
+        if !response.ok || !response.checkReturnCode() {
+            return ""
+        }
+
+        var result = response.readRemainingUtfText()
+        result = trim(result)
+        return result
+    } // func formatRecord
     
     func getMaxMfn(database: String) -> Int32 {
         if !self.connected {

@@ -10,6 +10,40 @@ func dataToArray(_ data: Data) -> [UInt8] {
     return result
 } // func dataToArray
 
+func dataToArray(_ data: Data, offset: Int) -> [UInt8] {
+    if offset < 0 || offset >= data.count {
+        return []
+    }
+    let size = data.count - offset
+    var result = [UInt8](repeating: 0, count: size)
+    data.withUnsafeBytes { ptr in
+        for i in 0..<size {
+            result[i] = ptr[offset + i]
+        }
+    }
+    return result
+} // func dataToArray
+
+func dataToArray(_ data: Data, offset: Int, length: Int) -> [UInt8] {
+    if offset < 0 || offset >= data.count {
+        return []
+    }
+    var size = length
+    if offset + size > data.count {
+        size = data.count - offset
+    }
+    if size <= 0 {
+        return []
+    }
+    var result = [UInt8](repeating: 0, count: length)
+    data.withUnsafeBytes { ptr in
+        for i in 0..<size  {
+            result[i] = ptr[offset + i]
+        }
+    }
+    return result
+} // func dataToArray
+
 func fromAnsi(_ bytes: Data) -> String {
     return String(data: bytes, encoding: .windowsCP1251)!
 } // func fromAnsi
