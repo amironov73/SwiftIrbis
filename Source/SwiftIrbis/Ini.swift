@@ -6,10 +6,13 @@ import Foundation
 /**
  * Line of INI-file. Consist of a key and value.
  */
-class IniLine: CustomStringConvertible, CustomDebugStringConvertible {
+public class IniLine {
 
-    var key: String // Key string.
-    var value: String // Value string
+    /// Key string.
+    public var key: String
+    
+    /// Value string.
+    var value: String
     
     init(key: String, value: String) {
         self.key = key
@@ -28,7 +31,7 @@ class IniLine: CustomStringConvertible, CustomDebugStringConvertible {
 /**
  * Section of INI-file. Consist of lines (see IniLine).
  */
-class IniSection: CustomStringConvertible, CustomDebugStringConvertible {
+public class IniSection {
 
     var name: String // Name of the section.
     var lines: [IniLine] // Lines.
@@ -106,9 +109,10 @@ class IniSection: CustomStringConvertible, CustomDebugStringConvertible {
 /**
  * INI-file. Consist of sections (see IniSection).
  */
-class IniFile: CustomStringConvertible, CustomDebugStringConvertible {
+public class IniFile {
 
-    var sections: [IniSection] = [] // Array of sections.
+    /// Array of sections.
+    public var sections: [IniSection] = []
 
     /**
      * Clear the INI-file.

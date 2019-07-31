@@ -3,33 +3,71 @@ import Foundation
 //=========================================================
 // Server connection
 
-class Connection {
-    var host: String = "127.0.0.1"
-    var port: UInt16 = 6666
-    var username: String = ""
-    var password: String = ""
-    var database: String = "IBIS"
-    var workstation: String = "C"
-    var clientId: Int32 = 0
-    var queryId: Int32 = 0
-    var connected: Bool = false
-    var lastError: Int32 = 0
-    var serverVersion: String = ""
-    var interval: Int32 = 0
-    var socket: ClientSocket = ClientSocket()
-    var ini: IniFile = IniFile()
+public class Connection {
+    
+    /// Host name or IP-address. Default value is "127.0.0.1".
+    public var host: String = "127.0.0.1"
+    
+    /// Port number. Default value is 6666.
+    public var port: UInt16 = 6666
+    
+    /// User login. Default is blank.
+    public var username: String = ""
+    
+    /// User password. Default is blank.
+    public var password: String = ""
+    
+    /// Current database name. Default is "IBIS".
+    public var database: String = "IBIS"
+    
+    /// Workstation code. Default is "C" (cataloger).
+    public var workstation: String = "C"
+    
+    /// Unique client identifier. Generated automatically.
+    internal(set) public var clientId: Int32 = 0
+    
+    /// Sequential query number. Updated automatically.
+    internal(set) public var queryId: Int32 = 0
+    
+    /// Connection state. Updated automatically.
+    internal(set) public var connected: Bool = false
+    
+    /// Last error code. Updated automatically.
+    internal(set) public var lastError: Int32 = 0
+    
+    /// Server version. Fetched automatically at connection time.
+    internal(set) public var serverVersion: String = ""
+    
+    /// Suggested auto-ACK interval, minutes.
+    /// Fetched automatically at connection time.
+    internal(set) public var interval: Int32 = 0
+    
+    /// Transport socket.
+    public var socket: ClientSocket = ClientSocket()
+    
+    /// INI-file. Fetched automatically at connection time.
+    private(set) public var ini: IniFile = IniFile()
 
-    /**
-     * Actualize all non-actualized records in the database.
-     */
+    /// Actualize all non-actualized records in the database.
+    ///
+    /// - Parameter database: database name (must be non-empty).
+    /// - Returns: sign of success.
     func actualizeDatabase(database: String) -> Bool {
+        precondition(!database.isEmpty)
+        
         return actualizeRecord(database: database, mfn: 0)
     } // func actualizeDatabase
 
-    /**
-     * Actualize the record with given MFN.
-     */
-    func actualizeRecord(database: String, mfn: Int32) -> Bool {
+    /// Actualize the record with given MFN.
+    ///
+    /// - Parameters:
+    ///   - database: database name (must be non-empty).
+    ///   - mfn: MFN of record to actualize.
+    /// - Returns: sign of success.
+    public func actualizeRecord(database: String, mfn: Int32) -> Bool {
+        precondition(!database.isEmpty)
+        precondition(mfn >= 0)
+        
         if !self.connected {
             return false
         }
@@ -38,13 +76,21 @@ class Connection {
         query.addAnsi(database).newLine()
         query.add(mfn).newLine()
         let response = self.execute(query)
+        
         return response.ok && response.checkReturnCode()
     } // func actualizeRecord
 
-    /**
-     * Establish the server connection.
-     */
-    func connect() -> Bool {
+    /// Establish the server connection.
+    ///
+    /// If already connected, does nothing.
+    ///
+    /// - Returns: sign of success (see lastError for error code).
+    public func connect() -> Bool {
+        precondition(!self.host.isEmpty)
+        precondition(!self.username.isEmpty)
+        precondition(!self.password.isEmpty)
+        precondition(!self.workstation.isEmpty)
+        
         if self.connected {
             return true
         }
@@ -54,7 +100,7 @@ class Connection {
         self.queryId = 1
         let query = ClientQuery(self, command: "A")
         query.addAnsi(self.username).newLine()
-        query.addAnsi(self.password).stop()
+        _ = query.addAnsi(self.password)
         let response = self.execute(query)
         if !response.ok {
             return false
@@ -80,10 +126,14 @@ class Connection {
         return true
     } // func connect
 
-    /**
-    * Create the server database.
-    */
-    func createDatabase(database: String, description: String,
+    /// Create the server database.
+    ///
+    /// - Parameters:
+    ///   - database: database name (must be non-empty).
+    ///   - description: free-formed description of the database.
+    ///   - readerAccess: readers can access the database.
+    /// - Returns: sign of success.
+    public func createDatabase(database: String, description: String,
                         readerAccess: Bool=true) -> Bool {
         precondition(!database.isEmpty)
         precondition(!description.isEmpty)
@@ -97,13 +147,15 @@ class Connection {
         query.addAnsi(description).newLine()
         query.add(readerAccess ? 1 : 0).newLine()
         let response = self.execute(query)
+        
         return response.ok && response.checkReturnCode()
     } // func createDatabase
 
-    /**
-     * Create the dictionary for the database.
-     */
-    func createDictionary(database: String = "") -> Bool {
+    /// Create the dictionary for the database.
+    ///
+    /// - Parameter database: name of the database, empty = current database.
+    /// - Returns: <#return value description#>sign of success.
+    public func createDictionary(database: String = "") -> Bool {
         if !self.connected {
             return false
         }
@@ -112,13 +164,15 @@ class Connection {
         let query = ClientQuery(self, command: "Z")
         query.addAnsi(db).newLine()
         let response = self.execute(query)
+        
         return response.ok && response.checkReturnCode()
     } // func createDictionary
 
-    /**
-     * Delete the database on the server.
-     */
-    func deleteDatabase(database: String) -> Bool {
+    /// Delete the database on the server.
+    ///
+    /// - Parameter database: database name (must be non-empty).
+    /// - Returns: sign of success.
+    public func deleteDatabase(database: String) -> Bool {
         precondition(!database.isEmpty)
 
         if !self.connected {
@@ -128,25 +182,33 @@ class Connection {
         let query = ClientQuery(self, command: "W")
         query.addAnsi(database).newLine()
         let response = self.execute(query)
+        
         return response.ok && response.checkReturnCode()
     } // func deleteDatabase
 
-    /**
-     * Delete specified file on the server.
-     */
-    func deleteFile(fileName: String) {
+    /// Delete specified file on the server.
+    ///
+    /// - Parameter fileName: name of the file (must be non-empty)
+    public func deleteFile(fileName: String) {
         precondition(!fileName.isEmpty)
 
         _ = formatRecord("&uf('+9K\(fileName)')", mfn: 1)
     } // func deleteFile
 
-    func disconnect() -> Bool {
+
+    /// Disconnect from the server.
+    ///
+    /// It's OK to disconnect twice or more times.
+    /// The method does nothing when the client wasn't connected yet.
+    ///
+    /// - Returns: sign of success.
+    public func disconnect() -> Bool {
         if !self.connected {
             return true
         }
         
         let query = ClientQuery(self, command: "B")
-        query.addAnsi(self.username).stop()
+        _ = query.addAnsi(self.username)
         _ = self.execute(query)
         
         self.connected = false
@@ -165,10 +227,13 @@ class Connection {
         return self.execute(query)
     } // func executeAsync
 
-    /**
-     * Format the record by MFN.
-     */
-    func formatRecord(_ format: String, mfn: Int32) -> String {
+    /// Format the record by MFN on the server.
+    ///
+    /// - Parameters:
+    ///   - format: format to use.
+    ///   - mfn: MFN of the record.
+    /// - Returns: result of formatting.
+    public func formatRecord(_ format: String, mfn: Int32) -> String {
         if !self.connected || mfn < 1 || format.isEmpty {
             return ""
         }
@@ -191,13 +256,14 @@ class Connection {
         return result
     } // func formatRecord
     
-    func getMaxMfn(database: String) -> Int32 {
+    func getMaxMfn(database: String = "") -> Int32 {
         if !self.connected {
             return 0
         }
-        
+
+        let db = pickOne(database, self.database)
         let query = ClientQuery(self, command: "O")
-        query.addAnsi(database).stop()
+        _ = query.addAnsi(db)
         let response = self.execute(query)
         if !response.ok || !response.checkReturnCode() {
             return 0
@@ -233,7 +299,7 @@ class Connection {
     } // func getServerVersion
 
     /**
-     * Get the user list from the server.
+     Get the user list from the server.
      */
     func getUserList() -> [UserInfo] {
         var result = [UserInfo]()
@@ -352,6 +418,12 @@ class Connection {
         } // for
     } // func parseConnectionString
 
+    /// Read record
+    ///
+    /// - Parameters:
+    ///   - mfn: <#mfn description#>
+    ///   - version: <#version description#>
+    /// - Returns: <#return value description#>
     func readRecord(_ mfn: Int32, version: Int32 = 0) -> MarcRecord? {
         if !connected {
             return nil

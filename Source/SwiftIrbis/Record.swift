@@ -6,16 +6,20 @@ import Foundation
 /**
  * MARC record subfield.
  */
-class SubField: CustomStringConvertible {
-    var code: Character // One-symbol code of the subfield.
-    var value: String // String value of the subfield.
+public class SubField: CustomStringConvertible {
     
-    init() {
+    /// One-symbol code of the subfield.
+    public var code: Character
+    
+    /// String value of the subfield.
+    public var value: String
+    
+    public init() {
         self.code = "\0"
         self.value = ""
     } // init
     
-    init(code: Character, value: String) {
+    public init(code: Character, value: String) {
         self.code = code
         self.value = value
     } // init
@@ -28,7 +32,7 @@ class SubField: CustomStringConvertible {
         self.value = subStr(text, 1)
     } // func decode
 
-    var description: String {
+    public var description: String {
         return "^\(code)\(value))"
     } // var description
 
@@ -40,18 +44,19 @@ class SubField: CustomStringConvertible {
 /**
  * Field consist of a value and subfields.
  */
-class RecordField {
-    var tag: Int32 // Numerical tag of the field.
-    var value: String // String value of the field.
-    var subfields: [SubField] // Subfields.
+public class RecordField {
     
-    init() {
+    public var tag: Int32 // Numerical tag of the field.
+    public var value: String // String value of the field.
+    public var subfields: [SubField] // Subfields.
+    
+    public init() {
         self.tag = 0
         self.value = ""
         self.subfields = []
     } // init
     
-    init(tag: Int32, value: String = "") {
+    public init(tag: Int32, value: String = "") {
         self.tag = tag
         self.value = value
         self.subfields = []
@@ -112,12 +117,13 @@ class RecordField {
 //=========================================================
 // MARC record
 
-class MarcRecord: CustomStringConvertible {
-    var database: String = ""
-    var mfn: Int32 = 0
-    var status: Int32 = 0
-    var version: Int32 = 0
-    var fields: [RecordField] = []
+public class MarcRecord {
+    
+    public var database: String = ""
+    public var mfn: Int32 = 0
+    public var status: Int32 = 0
+    public var version: Int32 = 0
+    public var fields: [RecordField] = []
     
     func append(tag: Int32, value: String) -> MarcRecord {
         let field = RecordField(tag: tag, value: value)
@@ -153,11 +159,11 @@ class MarcRecord: CustomStringConvertible {
         } // for
     } // func decode
 
-    var deleted: Bool {
+    public var deleted: Bool {
         return (self.status & 3) != 0
     } // var deleted
 
-    var description: String {
+    public var description: String {
         return encode(delimiter: "\n")
     } // var description
 

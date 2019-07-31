@@ -3,9 +3,9 @@ import Foundation
 //=========================================================
 // Client socket
 
-class ClientSocket {
+public class ClientSocket {
     
-    func talkToServer(query: ClientQuery) -> ServerResponse {
+    public func talkToServer(query: ClientQuery) -> ServerResponse {
         let connection = query.connection
         let client = TcpClient(host: connection.host, port: connection.port)
         client.connect()

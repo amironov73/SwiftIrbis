@@ -3,12 +3,24 @@ import Foundation
 //=========================================================
 // Client query
 
-class ClientQuery {
+/// Client query.
+public class ClientQuery {
+    
+    /// Connection to use.
     var connection: Connection
+    
+    /// Command code.
     var command: String
+    
+    /// Internal buffer.
     private var buffer: Data
     
-    init(_ connection: Connection, command: String) {
+    /// Initializer.
+    ///
+    /// - Parameters:
+    ///   - connection: connection to use.
+    ///   - command: command code.
+    public init(_ connection: Connection, command: String) {
         self.connection = connection
         self.command = command
         self.buffer = Data()
@@ -24,22 +36,32 @@ class ClientQuery {
         self.newLine()
         self.newLine()
         self.newLine()
-        self.stop()
     } // init
-    
-    func add(_ number: Int32) -> ClientQuery {
+
+    /// Append integer number to the query.
+    ///
+    /// - Parameter number: integer value to add.
+    /// - Returns: query itself allowing to chain calls.
+    public func add(_ number: Int32) -> ClientQuery {
         return self.addAnsi(String(number))
     } // func add
-    
-    func addAnsi(_ text: String) -> ClientQuery {
-        self.buffer.append(toAnsi(text))
+
+    /// Append ANSI-encoded text chunk to the query.
+    ///
+    /// - Parameter text: chunk to append.
+    /// - Returns: query itself allowing to chain calls.
+    public func addAnsi(_ text: String) -> ClientQuery {
+        if !text.isEmpty {
+            self.buffer.append(toAnsi(text))
+        }
         return self
     } // func addAnsi
     
-    /**
-     * Add format specification.
-     */
-    func addFormat(_ text: String) -> Bool {
+    /// Append format specification to the query.
+    ///
+    /// - Parameter text: format to append.
+    /// - Returns: query itself allowing to chain calls.
+    public func addFormat(_ text: String) -> Bool {
         let stripped = trim(text)
         
         if stripped.isEmpty {
@@ -64,11 +86,20 @@ class ClientQuery {
         return true
     } // func addFormat
     
-    func addUtf(_ text: String) -> ClientQuery {
-        self.buffer.append(toUtf(text))
+    /// Append UTF8-encoded text chunk to the query.
+    ///
+    /// - Parameter text: chunk to append.
+    /// - Returns: query itself allowing to chain calls.
+    public func addUtf(_ text: String) -> ClientQuery {
+        if !text.isEmpty {
+            self.buffer.append(toUtf(text))
+        }
         return self
     } // func addUtf
     
+    /// Encode the query.
+    ///
+    /// - Returns: encoded query data.
     func encode() -> Data {
         let prefix = "\(buffer.count)\n"
         self.buffer.insert(contentsOf: toAnsi(prefix), at: 0)
@@ -76,12 +107,9 @@ class ClientQuery {
         return result
     } // func encode
     
-    func newLine() {
+    /// Append new line symbol to the query.
+    public func newLine() {
         self.buffer.append(UInt8(10))
     } // func newLine
-    
-    func stop() {
-        // Nothing to do here
-    } // func stop
     
 } // class ClientQuery
