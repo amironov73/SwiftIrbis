@@ -1,256 +1,6 @@
 import Foundation
 
 //=========================================================
-// Client query
-
-class ClientQuery {
-    var connection: Connection
-    var command: String
-    private var buffer: Data
-    
-    init(_ connection: Connection, command: String) {
-        self.connection = connection
-        self.command = command
-        self.buffer = Data()
-        self.buffer.reserveCapacity(1024)
-        
-        self.addAnsi(command).newLine()
-        self.addAnsi(connection.workstation).newLine()
-        self.addAnsi(command).newLine()
-        self.add(connection.clientId).newLine()
-        self.add(connection.queryId).newLine()
-        self.addAnsi(connection.password).newLine()
-        self.addAnsi(connection.username).newLine()
-        self.newLine()
-        self.newLine()
-        self.newLine()
-        self.stop()
-    } // init
-    
-    func add(_ number: Int32) -> ClientQuery {
-        return self.addAnsi(String(number))
-    } // func add
-    
-    func addAnsi(_ text: String) -> ClientQuery {
-        self.buffer.append(toAnsi(text))
-        return self
-    } // func addAnsi
-
-    /**
-     * Add format specification.
-     */
-    func addFormat(_ text: String) -> Bool {
-        let stripped = trim(text)
-
-        if stripped.isEmpty {
-            self.newLine()
-            return false
-        }
-
-        let prepared = prepareFormat(format: text)
-        if prepared.isEmpty {
-            self.newLine()
-            return false
-        }
-
-        if prepared.first! == "@" {
-            _ = self.addAnsi(prepared)
-        } else if prepared.first! == "!" {
-            _ = self.addUtf(prepared)
-        } else {
-            _ = self.addUtf("!").addUtf(prepared)
-        }
-        self.newLine()
-        return true
-    } // func addFormat
-    
-    func addUtf(_ text: String) -> ClientQuery {
-        self.buffer.append(toUtf(text))
-        return self
-    } // func addUtf
-
-    func encode() -> Data {
-        let prefix = "\(buffer.count)\n"
-        self.buffer.insert(contentsOf: toAnsi(prefix), at: 0)
-        let result = self.buffer
-        return result
-    } // func encode
-    
-    func newLine() {
-        self.buffer.append(UInt8(10))
-    } // func newLine
-    
-    func stop() {
-        // Nothing to do here
-    } // func stop
-    
-} // class ClientQuery
-
-//=========================================================
-// Client socket
-
-class ClientSocket {
-
-    func talkToServer(query: ClientQuery) -> ServerResponse {
-        let connection = query.connection
-        let client = TcpClient(host: connection.host, port: connection.port)
-        client.connect()
-        let outputData = query.encode()
-        let outputPacket = Array(outputData)
-        client.send(packet: outputPacket)
-        let inputPacket = client.receive()
-        client.close()
-        let result = ServerResponse(inputPacket)
-        return result
-    } // func talkToServer
-
-} // class ClientSocket
-
-//=========================================================
-// Server response
-
-class ServerResponse {
-    var command: String = ""
-    var clientId: Int32 = 0
-    var queryId: Int32 = 0
-    var returnCode: Int32 = 0
-    var answerSize: Int32 = 0
-    var serverVersion: String = ""
-    var interval: Int32 = 0
-    var ok: Bool = false
-    
-    var connection: Connection?
-    var buffer: Data
-    var offset: Int
-    
-    init(_ buffer: Data) {
-        self.buffer = buffer
-        self.ok = !buffer.isEmpty
-        self.offset = 0
-
-        if (self.ok) {
-            self.command = readAnsi() ?? ""
-            self.clientId = readInteger()
-            self.queryId = readInteger()
-            self.answerSize = readInteger()
-            self.serverVersion = readAnsi() ?? ""
-            self.interval = readInteger()
-            _ = readAnsi()
-            _ = readAnsi()
-            _ = readAnsi()
-            _ = readAnsi()
-        }
-    } // init
-
-    func eof() -> Bool {
-        return self.offset >= self.buffer.count
-    } // func eof
-
-    func checkReturnCode(allowed: Int32...) -> Bool {
-        if self.getReturnCode() < 0 {
-            if allowed.contains(self.returnCode) {
-                return true
-            }
-            return false // TODO check for allowed codes
-        }
-        return true
-    } // func checkReturnCode
-
-    func findPreamble(preamble: Data) -> Data? {
-        return nil // TODO implement
-    } // func getPreamble
-
-    func getLine() -> Data? {
-        if self.offset >= self.buffer.count {
-            return nil
-        }
-
-        var result = Data()
-        while self.offset < self.buffer.count {
-            let symbol = self.buffer[self.offset]
-            self.offset += 1
-            if symbol == 13 {
-                if self.buffer[offset] == 10 {
-                    self.offset += 1
-                }
-                break
-            }
-            result.append(symbol)
-        }
-        return result
-    } // func getLine
-
-    func getReturnCode() -> Int32 {
-        self.returnCode = readInteger()
-        self.connection?.lastError = self.returnCode
-        return self.returnCode
-    } // func getReturnCode
-    
-    func readAnsi() -> String? {
-        let line = getLine()
-        guard let text = line else {
-            return nil
-        }
-        return fromAnsi(text)
-    } // func readAnsi
-    
-    func readInteger() -> Int32 {
-        let line = readAnsi()
-        guard let text = line else {
-            return 0
-        }
-        return parseInt32(text)
-    } // func readInteger
-    
-    func readRemainingAnsiLines() -> [String] {
-        var result = [String]()
-        while (true) {
-            let text = self.readAnsi()
-            if let line = text {
-                result.append(line)
-            } else {
-                break
-            }
-        }
-        return result
-    } // func readRemainingAnsiLines
-    
-    func readRemainingAnsiText() -> String {
-        return ""
-    } // func readRemainingAnsiText
-    
-    func readRemainingUtfLines() -> [String] {
-        var result = [String]()
-        while (true) {
-            let text = self.readUtf()
-            if let line = text {
-                result.append(line)
-            } else {
-                break
-            }
-        }
-        return result
-    } // func readRemainingUtfLines
-    
-    func readRemainingUtfText() -> String {
-        if self.eof() {
-            return ""
-        }
-        let chunk = self.buffer[self.offset...]
-        return fromUtf(chunk)
-    } // func readRemainingUtfText
-    
-    func readUtf() -> String? {
-        let line = getLine()
-        guard let text = line else {
-            return nil
-        }
-        return fromUtf(text)
-    } // func readUtf
-    
-} // class ServerResponse
-
-//=========================================================
 // Server connection
 
 class Connection {
@@ -329,7 +79,67 @@ class Connection {
         
         return true
     } // func connect
-    
+
+    /**
+    * Create the server database.
+    */
+    func createDatabase(database: String, description: String,
+                        readerAccess: Bool=true) -> Bool {
+        precondition(!database.isEmpty)
+        precondition(!description.isEmpty)
+
+        if !self.connected {
+            return false
+        }
+
+        let query = ClientQuery(self, command: "T")
+        query.addAnsi(database).newLine()
+        query.addAnsi(description).newLine()
+        query.add(readerAccess ? 1 : 0).newLine()
+        let response = self.execute(query)
+        return response.ok && response.checkReturnCode()
+    } // func createDatabase
+
+    /**
+     * Create the dictionary for the database.
+     */
+    func createDictionary(database: String = "") -> Bool {
+        if !self.connected {
+            return false
+        }
+
+        let db = pickOne(database, self.database)
+        let query = ClientQuery(self, command: "Z")
+        query.addAnsi(db).newLine()
+        let response = self.execute(query)
+        return response.ok && response.checkReturnCode()
+    } // func createDictionary
+
+    /**
+     * Delete the database on the server.
+     */
+    func deleteDatabase(database: String) -> Bool {
+        precondition(!database.isEmpty)
+
+        if !self.connected {
+            return false
+        }
+
+        let query = ClientQuery(self, command: "W")
+        query.addAnsi(database).newLine()
+        let response = self.execute(query)
+        return response.ok && response.checkReturnCode()
+    } // func deleteDatabase
+
+    /**
+     * Delete specified file on the server.
+     */
+    func deleteFile(fileName: String) {
+        precondition(!fileName.isEmpty)
+
+        _ = formatRecord("&uf('+9K\(fileName)')", mfn: 1)
+    } // func deleteFile
+
     func disconnect() -> Bool {
         if !self.connected {
             return true
@@ -349,6 +159,11 @@ class Connection {
         
         return self.socket.talkToServer(query: query)
     } // func execute
+
+    func executeAsync(_ query: ClientQuery) -> ServerResponse {
+        // TODO implement
+        return self.execute(query)
+    } // func executeAsync
 
     /**
      * Format the record by MFN.
@@ -416,6 +231,25 @@ class Connection {
         }
         return result
     } // func getServerVersion
+
+    /**
+     * Get the user list from the server.
+     */
+    func getUserList() -> [UserInfo] {
+        var result = [UserInfo]()
+        if !self.connected {
+            return result
+        }
+
+        let query = ClientQuery(self, command: "+9")
+        let response = self.execute(query)
+        if !response.ok || !response.checkReturnCode() {
+            return result
+        }
+        let lines = response.readRemainingAnsiLines()
+        result = UserInfo.parse(lines)
+        return result
+    } // func getUserList
 
     func listFiles(_ specifications: String...) -> [String] {
         var result = [String]()

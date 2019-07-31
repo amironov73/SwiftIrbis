@@ -32,6 +32,9 @@ print("Processes: \(processes)")
 let serverStat = client.getServerStat()
 print("Server stat: \(serverStat)")
 
+let users = client.getUserList()
+print("Users: \(users)")
+
 let maxMfn = client.getMaxMfn(database: "IBIS")
 print("Max MFN=\(maxMfn)")
 

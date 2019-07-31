@@ -8,6 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		6323863D22E5A4220011D2F9 /* SearchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6323863C22E5A4220011D2F9 /* SearchTest.swift */; };
+		63A675A522F10965007E6B19 /* ClientQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675A422F10965007E6B19 /* ClientQuery.swift */; };
+		63A675A722F109CD007E6B19 /* ClientSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675A622F109CD007E6B19 /* ClientSocket.swift */; };
+		63A675A922F10A06007E6B19 /* ServerResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675A822F10A06007E6B19 /* ServerResponse.swift */; };
+		63A675AB22F10A4B007E6B19 /* FileSpecification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675AA22F10A4B007E6B19 /* FileSpecification.swift */; };
+		63A675AD22F10A80007E6B19 /* IrbisPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675AC22F10A80007E6B19 /* IrbisPath.swift */; };
+		63A675AF22F10AAC007E6B19 /* DatabaseInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675AE22F10AAC007E6B19 /* DatabaseInfo.swift */; };
+		63A675B122F10ADA007E6B19 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675B022F10ADA007E6B19 /* ProcessInfo.swift */; };
+		63A675B322F10B2D007E6B19 /* VersionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675B222F10B2D007E6B19 /* VersionInfo.swift */; };
+		63A675B522F10B72007E6B19 /* ClientInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675B422F10B72007E6B19 /* ClientInfo.swift */; };
+		63A675B722F10C10007E6B19 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A675B622F10C10007E6B19 /* UserInfo.swift */; };
 		63AE36B022E7CEEA00DD4D6D /* Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE36AF22E7CEEA00DD4D6D /* Structures.swift */; };
 		63AE36B222E7D4B900DD4D6D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE36B122E7D4B900DD4D6D /* Utils.swift */; };
 		63BE67DD22EE75BD00D251C0 /* TcpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63BE67DC22EE75BD00D251C0 /* TcpClient.swift */; };
@@ -37,6 +47,16 @@
 
 /* Begin PBXFileReference section */
 		6323863C22E5A4220011D2F9 /* SearchTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTest.swift; sourceTree = "<group>"; };
+		63A675A422F10965007E6B19 /* ClientQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientQuery.swift; sourceTree = "<group>"; };
+		63A675A622F109CD007E6B19 /* ClientSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSocket.swift; sourceTree = "<group>"; };
+		63A675A822F10A06007E6B19 /* ServerResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerResponse.swift; sourceTree = "<group>"; };
+		63A675AA22F10A4B007E6B19 /* FileSpecification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSpecification.swift; sourceTree = "<group>"; };
+		63A675AC22F10A80007E6B19 /* IrbisPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrbisPath.swift; sourceTree = "<group>"; };
+		63A675AE22F10AAC007E6B19 /* DatabaseInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseInfo.swift; sourceTree = "<group>"; };
+		63A675B022F10ADA007E6B19 /* ProcessInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
+		63A675B222F10B2D007E6B19 /* VersionInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionInfo.swift; sourceTree = "<group>"; };
+		63A675B422F10B72007E6B19 /* ClientInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientInfo.swift; sourceTree = "<group>"; };
+		63A675B622F10C10007E6B19 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
 		63AE36AF22E7CEEA00DD4D6D /* Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Structures.swift; sourceTree = "<group>"; };
 		63AE36B122E7D4B900DD4D6D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		63BE67DC22EE75BD00D251C0 /* TcpClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcpClient.swift; sourceTree = "<group>"; };
@@ -98,6 +118,16 @@
 				63F91E6822E9AAFE006D2258 /* Tree.swift */,
 				63F91E6A22E9AB2F006D2258 /* Ini.swift */,
 				63BE67DC22EE75BD00D251C0 /* TcpClient.swift */,
+				63A675A422F10965007E6B19 /* ClientQuery.swift */,
+				63A675A622F109CD007E6B19 /* ClientSocket.swift */,
+				63A675A822F10A06007E6B19 /* ServerResponse.swift */,
+				63A675AA22F10A4B007E6B19 /* FileSpecification.swift */,
+				63A675AC22F10A80007E6B19 /* IrbisPath.swift */,
+				63A675AE22F10AAC007E6B19 /* DatabaseInfo.swift */,
+				63A675B022F10ADA007E6B19 /* ProcessInfo.swift */,
+				63A675B222F10B2D007E6B19 /* VersionInfo.swift */,
+				63A675B422F10B72007E6B19 /* ClientInfo.swift */,
+				63A675B622F10C10007E6B19 /* UserInfo.swift */,
 			);
 			path = SwiftIrbis;
 			sourceTree = "<group>";
@@ -216,16 +246,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63A675AD22F10A80007E6B19 /* IrbisPath.swift in Sources */,
+				63A675AB22F10A4B007E6B19 /* FileSpecification.swift in Sources */,
 				BF0BC6C68AFFC9873E74A568 /* main.swift in Sources */,
 				63AE36B022E7CEEA00DD4D6D /* Structures.swift in Sources */,
+				63A675B322F10B2D007E6B19 /* VersionInfo.swift in Sources */,
+				63A675A722F109CD007E6B19 /* ClientSocket.swift in Sources */,
 				63F91E6B22E9AB2F006D2258 /* Ini.swift in Sources */,
 				63F91E6122E9A9E8006D2258 /* Connection.swift in Sources */,
+				63A675AF22F10AAC007E6B19 /* DatabaseInfo.swift in Sources */,
 				63F91E6922E9AAFE006D2258 /* Tree.swift in Sources */,
 				BF0BA6BBBE0D19448C12CFE2 /* Search.swift in Sources */,
 				63F91E6522E9AA4A006D2258 /* Record.swift in Sources */,
 				63AE36B222E7D4B900DD4D6D /* Utils.swift in Sources */,
 				63BE67DD22EE75BD00D251C0 /* TcpClient.swift in Sources */,
+				63A675B122F10ADA007E6B19 /* ProcessInfo.swift in Sources */,
+				63A675A522F10965007E6B19 /* ClientQuery.swift in Sources */,
+				63A675A922F10A06007E6B19 /* ServerResponse.swift in Sources */,
 				63F91E6722E9AAB9006D2258 /* Menus.swift in Sources */,
+				63A675B522F10B72007E6B19 /* ClientInfo.swift in Sources */,
+				63A675B722F10C10007E6B19 /* UserInfo.swift in Sources */,
 				63F91E6322E9AA03006D2258 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
