@@ -91,6 +91,18 @@ func prepareFormat(format: String) -> String {
     return format
 } // func prepareFormat
 
+func readIrbisInt32(file: InputStream) -> Int32 {
+    //var buffer: [UInt8] = [0, 0, 0, 0]
+    //file.read(buffer, maxLength: 4)
+    // TODO implement
+    return 0
+} // func readIrbisInt32
+
+func readIrbisInt64(file: InputStream) -> Int64 {
+    // TODO implement
+    return 0
+} // func readIrbisInt64
+
 func removeComments(format: String) -> String {
     // TODO implement
     return format
@@ -122,12 +134,13 @@ func split2(_ text: String, separator: Character) -> [String] {
 } // func split2
 
 func splitN(_ text: String, _ delimiter: String, limit: Int) -> [String] {
-    var result = [String]()
-    var chunk = text
-    while (limit > 1) {
+    return []
+    //var result = [String]()
+    //var chunk = text
+    //while (limit > 1) {
         // TODO implement
-    }
-    return result
+    //}
+    //return result
 } // func splitN
 
 func subStr(_ text: String, _ start: Int, _ length: Int) -> String {

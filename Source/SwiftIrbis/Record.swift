@@ -572,6 +572,62 @@ public class MarcRecord {
         return false
     } // func haveField
     
+    /// Do we have any subfield with specified tag and code?
+    ///
+    /// - Parameters:
+    ///   - withTag: field tag to search for.
+    ///   - andCode: subfield code to search for.
+    /// - Returns: `true` if we have the subfield.
+    public func haveSubField(withTag tagToSearch: Int32, andCode codeToSearch: Character) -> Bool {
+        for field in self.fields {
+            if field.tag == tagToSearch {
+                for subfield in field.subfields {
+                    if sameChar(subfield.code, codeToSearch) {
+                        return true
+                    }
+                } // for
+            } // if
+        } // for
+        
+        return false
+    } // func haveSubField
+    
+    /// Insert the field at specified index.
+    ///
+    /// - Parameters:
+    ///   - at: at the index.
+    ///   - field: field to insert.
+    /// - Returns: record itself allowing call chaining.
+    public func insertAt(at index: Int, field: RecordField) -> MarcRecord {
+        self.fields.insert(field, at: index)
+        return self
+    } // func insertAt
+    
+    /// Remove field at specified index.
+    ///
+    /// - Parameter at: at the index.
+    /// - Returns: record itself allowing call chaining.
+    public func removeAt(at index: Int) -> MarcRecord {
+        self.fields.remove(at: index)
+        return self
+    } // func removeAt
+    
+    /// Remove all fields with specified tag.
+    ///
+    /// - Parameter withTag: field tag to search for.
+    /// - Returns: record itself allowing call chaining.
+    public func removeField(withTag tagToSearch: Int32) -> MarcRecord {
+        var index = 0
+        while index < fields.count {
+            if fields[index].tag == tagToSearch {
+                _ = self.removeAt(at: index)
+            } else {
+                index += 1
+            }
+        } // while
+        return self
+    } // func removeField
+    
     /// Reset the record state, unbind it from the database.
     /// Fields remains untouched.
     ///
@@ -583,6 +639,43 @@ public class MarcRecord {
         self.database = ""
         return self
     } // func reset
+    
+    /// Set value of first occurrence of the field.
+    ///
+    /// - Parameters:
+    ///   - withTag: field tag to search.
+    ///   - newValue: new value for the field.
+    /// - Returns: record itself allowing call chaining.
+    public func setField(withTag tagToSearch: Int32, newValue: String?) -> MarcRecord {
+        if let text = newValue {
+            var field = self.getField(withTag: tagToSearch)
+            if field == nil {
+                field = RecordField(tag: tagToSearch, value: text)
+                self.fields.append(field!)
+            }
+            field!.value = newValue!
+        } else {
+            _ = self.removeField(withTag: tagToSearch)
+        }
+        return self
+    } // func setField
+    
+    /// Set value of first occurrence of the subfield.
+    ///
+    /// - Parameters:
+    ///   - withTag: field tag to search.
+    ///   - andCode: subfield code to search.
+    ///   - newValue: new value for the subfield.
+    /// - Returns: record itself allowing call chaining.
+    public func setSubField(withTag tagToSearch: Int32, andCode codeToSearch: Character, newValue: String?) -> MarcRecord {
+        var field = getField(withTag: tagToSearch)
+        if field == nil {
+            field = RecordField(tag: tagToSearch)
+            self.fields.append(field!)
+        }
+        _ = field!.setSubField(code: codeToSearch, newValue: newValue!)
+        return self
+    } // func setSubField
     
     /// Verify all the fields of the record.
     ///
@@ -602,3 +695,142 @@ public class MarcRecord {
     } // func verify
 
 } // class MarcRecord
+
+//=========================================================
+// Half-parsed record
+
+/// Half-parsed record. Consist of fields.
+public class RawRecord {
+    
+    /// Database name.
+    public var database: String = ""
+    
+    /// Masterfile number of the record.
+    public var mfn: Int32 = 0
+    
+    /// Version number of the record.
+    public var version: Int32 = 0
+    
+    /// Status of the record.
+    public var status: Int32 = 0
+    
+    /// Array of fields.
+    public var fields: [String] = []
+    
+    /// Append the field to the record.
+    ///
+    /// - Parameters:
+    ///   - tag: field tag number.
+    ///   - value: field value (must be non-empty).
+    /// - Returns: record itself allowing call chaining.
+    public func append(tag: Int32, value: String) -> RawRecord {
+        precondition(!value.isEmpty)
+        
+        let text = "\(tag)#\(value)"
+        self.fields.append(text)
+        
+        return self
+    } // func append
+    
+    
+    /// Creates deep clone of the record.
+    ///
+    /// - Returns: clone of the record.
+    public func clone() -> RawRecord {
+        let result = RawRecord()
+        result.database = self.database
+        result.mfn = self.mfn
+        result.version = self.version
+        result.status = self.version
+        result.fields = self.fields
+        return result
+    } // func clone
+    
+    /// Decode the record from text representation.
+    ///
+    /// - Parameter lines: text lines to decode.
+    /// - Returns: sign of success.
+    public func decode(_ lines: [String]) -> Bool {
+        precondition(lines.count > 2)
+        let firstLine = split2(lines[0], separator: "#")
+        self.mfn = parseInt32(firstLine[0])
+        self.status = parseInt32(safeGet(firstLine, 1))
+        let secondLine = split2(lines[1], separator: "#")
+        self.version = parseInt32(safeGet(secondLine, 1))
+        self.fields = Array(lines[2...])
+        return true
+    } // func decode
+    
+    /// Determines whether the record is marked as deleted.
+    public var deleted: Bool {
+        return (self.status & 3) != 0
+    } // var deleted
+    
+    public var description: String {
+        return self.encode(separator: "\n")
+    } // var description
+    
+    /// Encode the record to text representation.
+    ///
+    /// - Parameter separator: line separator.
+    /// - Returns: encoded record.
+    public func encode(separator: String = IRBIS_DELIMITER) -> String {
+        var result = "\(self.mfn)#\(self.status)\(separator)"
+        result.append("0#\(self.version)\(separator)")
+        for field in self.fields {
+            result.append("\(field)\(separator)")
+        }
+        return result
+    } // func encode
+    
+    /// Insert the field at specified position.
+    ///
+    /// - Parameters:
+    ///   - position: position.
+    ///   - field: field.
+    /// - Returns: record itself allowing call chaining.
+    public func insertAt(position: Int, field: String) -> RawRecord {
+        self.fields.insert(field, at: position)
+        return self
+    } // func insertAt
+    
+    /// Remove the field at specified position.
+    ///
+    /// - Parameter position: position.
+    /// - Returns: record itself allowing call chaining.
+    public func removeAt(position: Int) -> RawRecord {
+        self.fields.remove(at: position)
+        return self
+    } // func removeAt
+    
+    /// Reset the record state, unbind it from database.
+    /// Fields remains untouched.
+    ///
+    /// - Returns: record itself allowing call chaining.
+    public func reset() -> RawRecord {
+        self.database = ""
+        self.mfn = 0
+        self.status = 0
+        self.version = 0
+        return self
+    } // func reset
+    
+    /// Convert to MarcRecord.
+    ///
+    /// - Returns: converted record.
+    public func toMarcRecord() -> MarcRecord {
+        let result = MarcRecord()
+        result.database = self.database
+        result.mfn = self.mfn
+        result.status = self.status
+        result.version = self.version
+        result.fields.reserveCapacity(self.fields.count)
+        for line in self.fields {
+            let field = RecordField()
+            field.decode(line)
+            result.fields.append(field)
+        }
+        return result
+    } // func toMarcRecord
+    
+} // class RawRecord
