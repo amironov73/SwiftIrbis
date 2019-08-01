@@ -21,7 +21,7 @@ public class Connection {
     public var database: String = "IBIS"
     
     /// Workstation code. Default is "C" (cataloger).
-    public var workstation: String = "C"
+    public var workstation: String = CATALOGER
     
     /// Unique client identifier. Generated automatically.
     internal(set) public var clientId: Int32 = 0
