@@ -32,6 +32,7 @@
 		63FC9C9A22F3B973002F817F /* ClassicFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FC9C9922F3B973002F817F /* ClassicFile.swift */; };
 		BF0BA6BBBE0D19448C12CFE2 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0B1344870DCEF888AB42F8 /* Search.swift */; };
 		BF0BC6C68AFFC9873E74A568 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0ABCAEBA87836006B2AFDC /* main.swift */; };
+		BF0D3E1434B67D5E0CF189E5 /* ClassicSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF034E6CB9287E6F31448E77 /* ClassicSocket.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -72,6 +73,7 @@
 		63F91E6822E9AAFE006D2258 /* Tree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
 		63F91E6A22E9AB2F006D2258 /* Ini.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ini.swift; sourceTree = "<group>"; };
 		63FC9C9922F3B973002F817F /* ClassicFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicFile.swift; sourceTree = "<group>"; };
+		BF034E6CB9287E6F31448E77 /* ClassicSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClassicSocket.swift; sourceTree = "<group>"; };
 		BF07DD83E28600733BD0BC60 /* SwiftIrbis */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SwiftIrbis; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0ABCAEBA87836006B2AFDC /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		BF0B1344870DCEF888AB42F8 /* Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 				63A675B422F10B72007E6B19 /* ClientInfo.swift */,
 				63A675B622F10C10007E6B19 /* UserInfo.swift */,
 				63FC9C9922F3B973002F817F /* ClassicFile.swift */,
+				BF034E6CB9287E6F31448E77 /* ClassicSocket.swift */,
 			);
 			path = SwiftIrbis;
 			sourceTree = "<group>";
@@ -271,6 +274,7 @@
 				63A675B522F10B72007E6B19 /* ClientInfo.swift in Sources */,
 				63A675B722F10C10007E6B19 /* UserInfo.swift in Sources */,
 				63F91E6322E9AA03006D2258 /* Constants.swift in Sources */,
+				BF0D3E1434B67D5E0CF189E5 /* ClassicSocket.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
