@@ -46,11 +46,11 @@ public class ClassicFile {
     /// - Parameter count: byte count to read.
     /// - Returns: read
     public func read(count: Int) -> Data {
-        var result = Data(capacity: count)
-        result.withUnsafeMutableBytes{
-            ptr in
-            _ = fread(ptr, 1, count, self.fp)
-        }
+        precondition(count > 0)
+
+        var buffer = [UInt8](repeating: 0, count: count)
+        let read = Darwin.fread(&buffer, 1, count, self.fp)
+        let result = Data(buffer[0..<read])
         return result
     } // func read
     
