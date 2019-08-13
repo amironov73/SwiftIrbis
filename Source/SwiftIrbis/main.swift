@@ -5,13 +5,13 @@
 import Foundation
 
 let client = Connection()
-client.host = "192.168.7.17"
+client.host = "192.168.7.36"
 client.username = "librarian"
 client.password = "secret"
 
-if !client.connect() {
-    print("Can't connect!")
-    client.throwOnError()
+let state = client.connect()
+if case .failure(let error) = state {
+    print("Can't connect! Error: \(error)")
     exit(1)
 }
 

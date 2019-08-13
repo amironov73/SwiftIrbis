@@ -1,6 +1,28 @@
 import Foundation
 
 //=========================================================
+// Error handling
+
+/// Ошибка
+public enum IrbisError: Error {
+
+    /// Нет ошибки
+    case noError
+
+    /// Общий сбой (ХЗ что творится)
+    case genericError
+
+    /// Не подключены к серверу
+    case notConnected
+
+    /// Сетевой сбой
+    case networkFailure
+
+    /// Сервер вернул код ошибки
+    case serverError(code: Int32)
+} // enum
+
+//=========================================================
 // Server connection
 
 public class Connection {
@@ -52,7 +74,7 @@ public class Connection {
     ///
     /// - Parameter database: database name (must be non-empty).
     /// - Returns: sign of success.
-    func actualizeDatabase(database: String) -> Bool {
+    func actualizeDatabase(database: String) -> Result<(), IrbisError> {
         precondition(!database.isEmpty)
         
         return actualizeRecord(database: database, mfn: 0)
@@ -64,20 +86,25 @@ public class Connection {
     ///   - database: database name (must be non-empty).
     ///   - mfn: MFN of record to actualize.
     /// - Returns: sign of success.
-    public func actualizeRecord(database: String, mfn: Int32) -> Bool {
+    public func actualizeRecord(database: String, mfn: Int32) -> Result<(), IrbisError> {
         precondition(!database.isEmpty)
         precondition(mfn >= 0)
         
         if !self.connected {
-            return false
+            return .failure(.notConnected)
         }
         
         let query = ClientQuery(self, command: "F")
         query.addAnsi(database).newLine()
         query.add(mfn).newLine()
         let response = self.execute(query)
-        
-        return response.ok && response.checkReturnCode()
+        if !response.ok {
+            return .failure(.networkFailure)
+        }
+        if !response.checkReturnCode() {
+            return .failure(.serverError(code: response.returnCode))
+        }
+        return .success(())
     } // func actualizeRecord
 
     /// Establish the server connection.
@@ -85,14 +112,14 @@ public class Connection {
     /// If already connected, does nothing.
     ///
     /// - Returns: sign of success (see lastError for error code).
-    public func connect() -> Bool {
+    public func connect() -> Result<(), IrbisError> {
         precondition(!self.host.isEmpty)
         precondition(!self.username.isEmpty)
         precondition(!self.password.isEmpty)
         precondition(!self.workstation.isEmpty)
         
         if self.connected {
-            return true
+            return .success(())
         }
 
         self.lastError = 0
@@ -103,7 +130,7 @@ public class Connection {
         _ = query.addAnsi(self.password)
         let response = self.execute(query)
         if !response.ok {
-            return false
+            return .failure(.networkFailure)
         }
         
         _ = response.getReturnCode()
@@ -113,7 +140,7 @@ public class Connection {
         
         if response.returnCode < 0 {
             self.lastError = response.returnCode
-            return false
+            return .failure(.serverError(code: response.returnCode))
         }
         
         self.connected = true
@@ -123,7 +150,7 @@ public class Connection {
         let lines = response.readRemainingAnsiLines()
         self.ini.parse(lines)
         
-        return true
+        return .success(())
     } // func connect
 
     /// Create the server database.
@@ -134,12 +161,12 @@ public class Connection {
     ///   - readerAccess: readers can access the database.
     /// - Returns: sign of success.
     public func createDatabase(database: String, description: String,
-                        readerAccess: Bool=true) -> Bool {
+                        readerAccess: Bool=true) -> Result<(), IrbisError> {
         precondition(!database.isEmpty)
         precondition(!description.isEmpty)
 
         if !self.connected {
-            return false
+            return .failure(.notConnected)
         }
 
         let query = ClientQuery(self, command: "T")
@@ -147,43 +174,61 @@ public class Connection {
         query.addAnsi(description).newLine()
         query.add(readerAccess ? 1 : 0).newLine()
         let response = self.execute(query)
+        if !response.ok {
+            return .failure(.networkFailure)
+        }
+        if !response.checkReturnCode() {
+            return .failure(.serverError(code: response.returnCode))
+        }
         
-        return response.ok && response.checkReturnCode()
+        return .success(())
     } // func createDatabase
 
     /// Create the dictionary for the database.
     ///
     /// - Parameter database: name of the database, empty = current database.
     /// - Returns: <#return value description#>sign of success.
-    public func createDictionary(database: String = "") -> Bool {
+    public func createDictionary(database: String = "") -> Result<(), IrbisError> {
         if !self.connected {
-            return false
+            return .failure(.notConnected)
         }
 
         let db = pickOne(database, self.database)
         let query = ClientQuery(self, command: "Z")
         query.addAnsi(db).newLine()
         let response = self.execute(query)
-        
-        return response.ok && response.checkReturnCode()
+        if !response.ok {
+            return .failure(.networkFailure)
+        }
+        if !response.checkReturnCode() {
+            return .failure(.serverError(code: response.returnCode))
+        }
+
+        return .success(())
     } // func createDictionary
 
     /// Delete the database on the server.
     ///
     /// - Parameter database: database name (must be non-empty).
     /// - Returns: sign of success.
-    public func deleteDatabase(database: String) -> Bool {
+    public func deleteDatabase(database: String) -> Result<(), IrbisError> {
         precondition(!database.isEmpty)
 
         if !self.connected {
-            return false
+            return .failure(.notConnected)
         }
 
         let query = ClientQuery(self, command: "W")
         query.addAnsi(database).newLine()
         let response = self.execute(query)
-        
-        return response.ok && response.checkReturnCode()
+        if !response.ok {
+            return .failure(.networkFailure)
+        }
+        if !response.checkReturnCode() {
+            return .failure(.serverError(code: response.returnCode))
+        }
+
+        return .success(())
     } // func deleteDatabase
 
     /// Delete specified file on the server.
@@ -202,17 +247,20 @@ public class Connection {
     /// The method does nothing when the client wasn't connected yet.
     ///
     /// - Returns: sign of success.
-    public func disconnect() -> Bool {
+    public func disconnect() -> Result<(), IrbisError> {
         if !self.connected {
-            return true
+            return .success(())
         }
         
         let query = ClientQuery(self, command: "B")
         _ = query.addAnsi(self.username)
-        _ = self.execute(query)
+        let response = self.execute(query)
+        if !response.ok {
+            return .failure(.networkFailure)
+        }
         
         self.connected = false
-        return true
+        return .success(())
     } // func disconnect
     
     func execute(_ query: ClientQuery) -> ServerResponse {
@@ -255,21 +303,25 @@ public class Connection {
         result = trim(result)
         return result
     } // func formatRecord
-    
-    func getMaxMfn(database: String = "") -> Int32 {
+
+    /// Get maximal MFN for the database.
+    func getMaxMfn(database: String = "") -> Result<Int32, IrbisError> {
         if !self.connected {
-            return 0
+            return .failure(.notConnected)
         }
 
         let db = pickOne(database, self.database)
         let query = ClientQuery(self, command: "O")
         _ = query.addAnsi(db)
         let response = self.execute(query)
+        if !response.ok {
+            return .failure(.networkFailure)
+        }
         if !response.ok || !response.checkReturnCode() {
-            return 0
+            return .failure(.serverError(code: response.returnCode))
         }
         
-        return response.returnCode
+        return .success(response.returnCode)
     } // func getMaxMfn
 
     func getServerStat() -> ServerStat {
